@@ -3,7 +3,7 @@ from pibot import leds, constants as c
 
 def clean_up(nano):
     stop_motors(nano)
-    nano.reset_nano(nano)
+    nano.reset_nano()
     stop_leds()
 
 

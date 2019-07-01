@@ -12,13 +12,14 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 
 def main():
-    speed = (20, -20)
+    speed = (int(40*1.021), 40)
     sleep_time = 0.1
 
     while True:
         try:
+            logging.info(str(nano.get_encoders()))
             mf.drive(nano, speed)
-            lf.blink()
+            # lf.blink()
             sleep(sleep_time)
 
         except KeyboardInterrupt:
