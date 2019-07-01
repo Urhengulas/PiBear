@@ -1,45 +1,39 @@
 from time import sleep
 import logging
 
-from pibot import (
-    leds, buttons, constants as c
-)
+from pibot import leds, buttons
 from pibot.nano import Nano
 
-leds.init_leds()
-buttons.init_buttons()
+from utilities import clean_up
+import motor_funcs as mf
+import led_funcs as lf
 
-nano = Nano()
-nano.reset_encoders()
-
-
-def blinken():
-    leds.set_led(c.LED_LEFT, c.RED)
-    sleep(0.5)
-    leds.set_led(c.LED_LEFT, c.OFF)
-    leds.set_led(c.LED_MID, c.YELLOW)
-    sleep(0.5)
-    leds.set_led(c.LED_MID, c.OFF)
-    leds.set_led(c.LED_RIGHT, c.GREEN)
-    sleep(0.5)
-    leds.set_led(c.LED_RIGHT, c.OFF)
-
-
-def stop_motors():
-    nano.set_motors(0, 0)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
 def main():
-    speed = 20
+    speed = (20, -20)
+    sleep_time = 0.1
 
     while True:
-        nano.set_motors(speed, -speed)
+        try:
+            mf.drive(nano, speed)
+            lf.blink()
+            sleep(sleep_time)
 
-        blinken()
-
-        sleep(0.1)
-        stop_motors()
+        except KeyboardInterrupt:
+            clean_up(nano)
+            logging.error("Keyboard Interupt. Stop motors. Reset Nano. Reset LED's")
+            break
 
 
 if __name__ == "__main__":
+    logging.info("Initialize LEDs and Buttons")
+    leds.init_leds()
+    buttons.init_buttons()
+
+    logging.info("Initialize Connection to Arduino Nano ...")
+    nano = Nano()
+    nano.reset_encoders()
+
     main()
