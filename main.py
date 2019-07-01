@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 
 def main():
-    speed = (int(40*1.021), 40)
+    speed = (40, 40)
     sleep_time = 0.1
 
     while True:
