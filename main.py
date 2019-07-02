@@ -26,13 +26,13 @@ def main():
     else:
         if ausgeschert is False:
             if dist_m <= 10:
-                motor.ausscheren()
+                motor.ausscheren() # hier fährt er raus
                 ausgeschert = True
         elif ausgeschert is True:
             if dist_r > 15:
                 lov = nano.get_encoders()[0]
 
-                motor.einscheren()
+                motor.einscheren() # hier fährt er rein
                 ausgeschert = False
 
                 if lov < 700:

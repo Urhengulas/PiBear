@@ -10,7 +10,7 @@ class Motor:
         self.nano = nano
         self.base_speed = base_speed
 
-    def drive(self, speed=None, tolerance=4, cor=5):
+    def drive(self, speed=None, tol=4, cor=5):
         if speed is None:
             speed = self.base_speed
 
@@ -19,12 +19,9 @@ class Motor:
         left = enc[0]
         right = enc[1]
 
-        if (left - right) > tolerance:
-            self.nano.set_motors(speed, speed + cor)  # adjust to right
-        elif (right - left) > tolerance:
-            self.nano.set_motors(speed + cor, speed)  # adjust to left
-        else:
-            self.nano.set_motors(speed, speed)  # do nothing
+        speed_l, speed_r = correct_speed(nano=self.nano, speed=speed, tol=tol, cor=cor)
+
+        self.nano.set_motors(speed_l, speed_r)
 
     def stop(self):
         self.nano.set_motors(0, 0)
@@ -50,39 +47,7 @@ class Motor:
 
         self.nano.reset_encoders()
 
-    def ausscheren(self):
-        self.kurve("left")
-
-        while True:
-            self.drive()
-
-            dist = self.nano.get_distances()
-
-            way = dist[2]
-            if way > 15:
-                break
-            else:
-                pass
-
-        self.roboterl(perc=0.5)
-        self.kurve("right")
-        self.roboterl(perc=1)
-
-
-    def überholen(self):
-
-
-
-
-    def einscheren(self):
-        logging.info("EINSCHEREN: {}".format(self.nano.get_encoders()))
-
-        self.roboterl(perc=0.8)
-        self.kurve("right")
-        self.roboterl(perc=1.1)
-        self.kurve("left")
-
-    def roboterl(self, perc=1, speed=None):
+    def roboterl(self, perc=1.0, speed=None):
         if speed is None:
             speed = self.base_speed
 
@@ -95,3 +60,55 @@ class Motor:
 
             if abs(enc0 - enc1) > perc * 270:
                 break
+
+    def ausscheren(self):
+        self.kurve("left")
+
+        while True:
+            self.drive()
+
+            dist = self.nano.get_distances()
+            way = dist[2]
+
+            if way > 15:
+                break
+            else:
+                pass
+
+        self.roboterl(perc=0.5)
+        self.kurve("right")
+        self.roboterl(perc=1)
+
+    def einscheren(self):
+        logging.info("EINSCHEREN: {}".format(self.nano.get_encoders()))
+
+        self.roboterl(perc=0.5)
+        self.kurve("right")
+
+        while True:
+            self.drive()
+
+            dtb = self.nano.get_distances()[2]
+
+            if dtb < 15:
+                self.stop()
+                break
+            else:
+                pass
+
+        self.roboterl(perc=0.2)
+        self.kurve("left")
+
+
+def correct_speed(nano, speed, tol, cor):
+    enc = nano.get_encoders()
+
+    left = enc[0]
+    right = enc[1]
+
+    if (left - right) > tol:
+        return speed, speed + cor  # adjust to right
+    elif (right - left) > tol:
+        return speed + cor, speed  # adjust to left
+    else:
+        return speed, speed  # do nothing
