@@ -5,14 +5,14 @@ from pibot import leds, buttons
 from pibot.nano import Nano
 
 from utilities import clean_up
-from motor_funcs import drive
+from motor_funcs import drive, kurve, roboterl, ausscheren, einscheren
 import led_funcs as lf
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
 def main():
-    speed = 40
+    speed = 30
     sleep_time = 0.5
 
     while True:
@@ -20,18 +20,16 @@ def main():
             dist = nano.get_distances()
             enc = nano.get_encoders()
 
-            logging.info("enc: {}".format(enc))
-            logging.info("dist: {}".format(dist))
+            logging.info("enc: {} – dist: {}".format(enc, dist))
 
             way = dist[1]
-            if way <= 5:
-                drive(nano, -speed)
-            elif way <= 10:
-                nano.set_motors(0, 0)
+
+            if way <= 10:
+                ausscheren(nano, speed)
+                roboterl(nano, speed, perc=1)
+                einscheren(nano, speed)
             else:
                 drive(nano, speed)
-
-
 
         except KeyboardInterrupt:
             clean_up(nano)
