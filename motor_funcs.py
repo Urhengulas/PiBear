@@ -1,6 +1,4 @@
-def drive(nano, speed, correct=True, correct_val=5):
-    nano.set_motors(speed[0], speed[1])
-
+def drive(nano, speed, correct=True, correct_val=5, cor=3):
     if correct == True:
         enc = nano.get_encoders()
 
@@ -8,8 +6,11 @@ def drive(nano, speed, correct=True, correct_val=5):
         right = enc[1]
 
         if (left - right) > correct_val:
-            pass  # adjust to right
+            # adjust to right
+            nano.set_motors(speed[0], speed[1] + cor)
         elif (right - left) > correct_val:
-            pass  # adjust to left
+            # adjust to left
+            nano.set_motors(speed[0] + cor, speed[1])
         else:
-            pass  # do nothing
+            # do nothing
+            nano.set_motors(speed[0], speed[1])
