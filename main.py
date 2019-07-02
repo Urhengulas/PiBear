@@ -1,49 +1,67 @@
-from time import sleep
 import logging
 
-from pibot import leds, buttons
-from pibot.nano import Nano
-
-from utilities import clean_up
-from motor_funcs import drive, kurve, roboterl, ausscheren, einscheren
-import led_funcs as lf
+from utilities import setup, clean_up
+from motor import Motor
+from actions import smart, bulli
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
 def main():
-    speed = 30
-    sleep_time = 0.5
+    dist = nano.get_distances()
+    enc = nano.get_encoders()
+
+    global ausgeschert
+
+    logging.info("enc: {} – dist: {} – asg: {}".format(enc, dist, ausgeschert))
+
+    # ultrasonic distances
+    dist_l = dist[0]
+    dist_m = dist[1]
+    dist_r = dist[2]
+
+    stop_val = 16
+    if dist_l <= stop_val and dist_m <= stop_val and dist_r <= stop_val:
+        motor.stop()
+    else:
+        if ausgeschert is False:
+            if dist_m <= 10:
+                motor.ausscheren()
+                ausgeschert = True
+        elif ausgeschert is True:
+            if dist_r > 15:
+                lov = nano.get_encoders()[0]
+
+                motor.einscheren()
+                ausgeschert = False
+
+                if lov < 700:
+                    logging.info("SMART")
+                    smart(motor)
+                elif lov > 700 and lov < 900:
+                    logging.info("BULLI")
+                    bulli(motor)
+                else:
+                    pass
+
+        motor.drive()
+
+    nano.set_buzzer(100, 5)
+
+    # blink()
+
+
+if __name__ == "__main__":
+    nano = setup()
+    motor = Motor(nano=nano, base_speed=30)
+    ausgeschert = False
+
+    #  nano.set_buzzer(50, 1000)  # hz, ms
 
     while True:
         try:
-            dist = nano.get_distances()
-            enc = nano.get_encoders()
-
-            logging.info("enc: {} – dist: {}".format(enc, dist))
-
-            way = dist[1]
-
-            if way <= 10:
-                ausscheren(nano, speed)
-                roboterl(nano, speed, perc=1)
-                einscheren(nano, speed)
-            else:
-                drive(nano, speed)
-
+            main()
         except KeyboardInterrupt:
             clean_up(nano)
             logging.error("Keyboard Interupt. Stop motors. Reset Nano. Reset LED's")
             break
-
-
-if __name__ == "__main__":
-    logging.info("Initialize LEDs and Buttons")
-    leds.init_leds()
-    buttons.init_buttons()
-
-    logging.info("Initialize Connection to Arduino Nano ...")
-    nano = Nano()
-    nano.reset_encoders()
-
-    main()

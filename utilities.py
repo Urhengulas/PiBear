@@ -1,4 +1,19 @@
-from pibot import leds, constants as c
+import logging
+
+from pibot import leds, constants as c, buttons
+from pibot.nano import Nano
+
+
+def setup():
+    logging.info("Initialize LEDs and Buttons")
+    leds.init_leds()
+    buttons.init_buttons()
+
+    logging.info("Initialize Connection to Arduino Nano ...")
+    nano = Nano()
+    nano.reset_encoders()
+
+    return nano
 
 
 def clean_up(nano):

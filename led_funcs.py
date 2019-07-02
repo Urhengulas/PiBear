@@ -1,12 +1,24 @@
+from pibot import leds, constants as c
 from time import sleep
 
-from pibot import leds, constants as c
 
+def blink(dir_b, times=5):
+    if dir_b == "left":
+        led = c.LED_LEFT
+    elif dir_b == "right":
+        led = c.LED_RIGHT
 
-def blink(sleep_time=0.5):
-    blink_list = [(c.LED_RIGHT, c.RED), (c.LED_MID, c.YELLOW), (c.LED_LEFT, c.GREEN)]
-
-    for led, col in blink_list:
-        leds.set_led(led, col)
-        sleep(sleep_time)
+    for _ in range(times):
+        leds.set_led(led, c.RED)
+        sleep(0.3)
         leds.set_led(led, c.OFF)
+        sleep(0.3)
+
+
+def aufmerksamkeit(nano):
+    nano.set_buzzer(100, 3000)
+    for _ in range(3):
+        leds.set_led(c.LED_RIGHT, c.GREEN)
+        sleep(0.3)
+        leds.set_led(c.LED_RIGHT, c.OFF)
+        sleep(0.3)
