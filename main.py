@@ -30,12 +30,12 @@ def main():
     stop_val = 13
     tunnel_val = 12
 
-    if dist_l * 0.1 <= stop_val and dist_m <= stop_val and dist_r <= stop_val:
+    if 0 < dist_l * 0.1 <= stop_val and 0 < dist_m <= stop_val and 0 < dist_r <= stop_val:
         motor.stop()
         return True
     else:
         if ausgeschert is False:
-            if dist_m <= 10:
+            if 0 < dist_m <= 10:
                 motor.ausscheren()
                 ausgeschert = True
             elif dist_l * 0.1 <= tunnel_val and dist_r <= tunnel_val:
@@ -74,6 +74,13 @@ if __name__ == "__main__":
     nano = setup()
     motor = Motor(nano=nano, base_speed=25)
 
+    """
+    camera = Camera()
+
+    bild = camera.capture_image()
+    is_ball, image = camera.check_for_ball(bild, "red", 50)
+    camera.view_image(image, "image")
+    """
     ausgeschert = False
     in_tunnel = False
 

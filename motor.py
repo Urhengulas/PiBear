@@ -92,7 +92,7 @@ class Motor:
             else:
                 pass
 
-        self.roboterl(perc=1.0)
+        self.roboterl(perc=0.85)
         self.kurve("left")
 
     def correct_wall(self, dist_r):
