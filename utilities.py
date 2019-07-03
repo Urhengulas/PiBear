@@ -16,14 +16,10 @@ def setup():
     return nano
 
 
-def clean_up(nano):
-    stop_motors(nano)
-    nano.reset_nano()
+def clean_up(motor):
+    motor.stop()
+    motor.nano.reset_nano()
     stop_leds()
-
-
-def stop_motors(nano):
-    nano.set_motors(0, 0)
 
 
 def stop_leds():

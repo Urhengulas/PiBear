@@ -3,7 +3,7 @@ from led_funcs import aufmerksamkeit
 
 
 def smart(motor):
-    motor.roboterl(perc=0.25, speed=-20)
+    motor.roboterl(perc=0.47, speed=-20)
     motor.stop()
     sleep(5)
 

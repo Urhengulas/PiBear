@@ -14,11 +14,6 @@ class Motor:
         if speed is None:
             speed = self.base_speed
 
-        enc = self.nano.get_encoders()
-
-        left = enc[0]
-        right = enc[1]
-
         speed_l, speed_r = correct_speed(nano=self.nano, speed=speed, tol=tol, cor=cor)
 
         self.nano.set_motors(speed_l, speed_r)
@@ -39,10 +34,12 @@ class Motor:
         else:
             return
 
+        quarter_turn = 290
         while True:
             enc = self.nano.get_encoders()
+            # logging.info("TURN - enc: {}".format(enc))
 
-            if abs(enc[0] - enc[1]) > perc * 290:
+            if abs(enc[0] - enc[1]) > perc * quarter_turn:
                 break
 
         self.nano.reset_encoders()
@@ -58,7 +55,7 @@ class Motor:
 
             enc1 = self.nano.get_encoders()[1]
 
-            if abs(enc0 - enc1) > perc * 270:
+            if abs(enc0 - enc1) > perc * 290:
                 break
 
     def ausscheren(self):
@@ -67,22 +64,21 @@ class Motor:
         while True:
             self.drive()
 
-            dist = self.nano.get_distances()
-            way = dist[2]
+            dtb = self.nano.get_distances()[2]
 
-            if way > 15:
+            if dtb > 15:
                 break
             else:
                 pass
 
-        self.roboterl(perc=0.5)
+        self.roboterl(perc=0.6)
         self.kurve("right")
         self.roboterl(perc=1)
 
     def einscheren(self):
         logging.info("EINSCHEREN: {}".format(self.nano.get_encoders()))
 
-        self.roboterl(perc=0.5)
+        self.roboterl(perc=0.8)
         self.kurve("right")
 
         while True:
@@ -90,25 +86,34 @@ class Motor:
 
             dtb = self.nano.get_distances()[2]
 
-            if dtb < 15:
+            if dtb < 20:
                 self.stop()
                 break
             else:
                 pass
 
-        self.roboterl(perc=0.2)
+        self.roboterl(perc=1.0)
         self.kurve("left")
+
+    def correct_wall(self, dist_r):
+        # dtw means distance to wall
+        dtw = dist_r
+
+        if dtw <= 8:
+            self.nano.set_motors(self.base_speed, self.base_speed + 15)
+        elif 15 <= dtw <= 30:
+            self.nano.set_motors(self.base_speed + 10, self.base_speed)
 
 
 def correct_speed(nano, speed, tol, cor):
     enc = nano.get_encoders()
 
-    left = enc[0]
-    right = enc[1]
+    enc_l = enc[0]
+    enc_r = enc[1]
 
-    if (left - right) > tol:
+    if (enc_l - enc_r) > tol:
         return speed, speed + cor  # adjust to right
-    elif (right - left) > tol:
+    elif (enc_r - enc_l) > tol:
         return speed + cor, speed  # adjust to left
     else:
         return speed, speed  # do nothing
