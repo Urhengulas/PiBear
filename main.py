@@ -4,7 +4,6 @@ from utilities import setup, clean_up
 from motor import Motor
 from actions import smart, bulli
 from led_funcs import tunnel_licht
-from pibot.camera import Camera
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -74,13 +73,6 @@ if __name__ == "__main__":
     nano = setup()
     motor = Motor(nano=nano, base_speed=25)
 
-    """
-    camera = Camera()
-
-    bild = camera.capture_image()
-    is_ball, image = camera.check_for_ball(bild, "red", 50)
-    camera.view_image(image, "image")
-    """
     ausgeschert = False
     in_tunnel = False
 
@@ -88,8 +80,8 @@ if __name__ == "__main__":
         try:
             end = main()
 
-            #  if end is True:
-            #      break
+            if end is True:
+                break
 
         except KeyboardInterrupt:
             clean_up(motor)
