@@ -1,13 +1,15 @@
 import _thread
 import logging
 
+from utilities import setup
 from led_funcs import blink
+from time import sleep
 
 
 class Motor:
 
-    def __init__(self, nano, base_speed=40):
-        self.nano = nano
+    def __init__(self, base_speed=30):
+        self.nano = setup()
         self.base_speed = base_speed
 
     def drive(self, speed=None, tol=4, cor=5):
@@ -21,7 +23,7 @@ class Motor:
     def stop(self):
         self.nano.set_motors(0, 0)
 
-    def kurve(self, dir, speed=None, perc=1):
+    def kurve(self, dir, speed=None, perc=1.0):
         if speed is None:
             speed = self.base_speed
 
@@ -37,7 +39,6 @@ class Motor:
         quarter_turn = 290
         while True:
             enc = self.nano.get_encoders()
-            # logging.info("TURN - enc: {}".format(enc))
 
             if abs(enc[0] - enc[1]) > perc * quarter_turn:
                 break
@@ -59,6 +60,7 @@ class Motor:
                 break
 
     def ausscheren(self):
+        logging.info("AUSSCHEREN beginnt")
         self.kurve("left")
 
         while True:
@@ -67,16 +69,19 @@ class Motor:
             dtb = self.nano.get_distances()[2]
 
             if dtb > 15:
-                break
+                sleep(0.06)
+                dtb = self.nano.get_distances()[2]
+                if dtb > 15:
+                    break
             else:
                 pass
 
         self.roboterl(perc=0.6)
-        self.kurve("right")
+        self.kurve("right", perc=1)
         self.roboterl(perc=1)
 
     def einscheren(self):
-        logging.info("EINSCHEREN: {}".format(self.nano.get_encoders()))
+        logging.info("EINSCHEREN beginnt")
 
         self.roboterl(perc=0.8)
         self.kurve("right")
@@ -87,21 +92,22 @@ class Motor:
             dtb = self.nano.get_distances()[2]
 
             if dtb < 20:
-                self.stop()
-                break
+                dtb = self.nano.get_distances()[2]
+                if dtb < 20:
+                    break
             else:
                 pass
 
-        self.roboterl(perc=0.85)
-        self.kurve("left")
+        self.roboterl(perc=0.35)  # alt 0.7
+        self.kurve("left", perc=1.1)
 
     def correct_wall(self, dist_r):
         # dtw means distance to wall
         dtw = dist_r
 
-        if dtw <= 8:
+        if dtw <= 7:
             self.nano.set_motors(self.base_speed, self.base_speed + 15)
-        elif 15 <= dtw <= 30:
+        elif 15 <= dtw <= 25:
             self.nano.set_motors(self.base_speed + 10, self.base_speed)
 
 

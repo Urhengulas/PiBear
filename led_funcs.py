@@ -1,4 +1,4 @@
-from pibot import leds, constants as c
+from pibot import leds, buttons, lcd, constants as c
 from time import sleep
 
 
@@ -34,3 +34,10 @@ def tunnel_licht(in_tunnel: bool):
 
     for led in [c.LED_FRONT_LEFT, c.LED_FRONT_RIGHT]:
         leds.set_led(led, zustand)
+
+
+def wait_for_start():
+    leds.set_led(c.LED_MID, c.GREEN)
+    buttons.wait_for_button_press(c.BUTTON_MID)
+    leds.set_led(c.LED_MID, c.OFF)
+    sleep(0.5)
